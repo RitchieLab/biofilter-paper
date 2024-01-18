@@ -1,1 +1,263 @@
+TABLE setting
+{
+  setting VARCHAR(32)
+  value VARCHAR(256)
+}
+TABLE sqlite_stat1{tbl,idx,stat}
+TABLE sqlite_stat4{tbl,idx,neq,nlt,ndlt,sample}
+TABLE grch_ucschg 
+{
+  grch INTEGER PRIMARY KEY,
+  ucschg INTEGER NOT NULL
+}
+TABLE ldprofile 
+{
+  ldprofile_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  ldprofile VARCHAR(32) UNIQUE NOT NULL,
+  description VARCHAR(128),
+  metric VARCHAR(32),
+  value DOUBLE
+}
+TABLE sqlite_sequence{name,seq}
+TABLE namespace 
+{
+  namespace_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  namespace VARCHAR(32) UNIQUE NOT NULL,
+  polygenic TINYINT NOT NULL DEFAULT 0
+}
+TABLE relationship 
+{
+  relationship_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  relationship VARCHAR(32) UNIQUE NOT NULL
+}
+TABLE role 
+{
+  role_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  role VARCHAR(32) UNIQUE NOT NULL,
+  description VARCHAR(128),
+  coding TINYINT,
+  exon TINYINT
+}
+TABLE source 
+{
+  source_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  source VARCHAR(32) UNIQUE NOT NULL,
+  updated DATETIME,
+  version VARCHAR(32),
+  grch INTEGER,
+  ucschg INTEGER,
+  current_ucschg INTEGER
+}
+TABLE source_option 
+{
+  source_id TINYINT NOT NULL,
+  option VARCHAR(32) NOT NULL,
+  value VARCHAR(64),
+  PRIMARY KEY (source_id, option)
+}
+TABLE source_file 
+{
+  source_id TINYINT NOT NULL,
+  filename VARCHAR(256) NOT NULL,
+  size BIGINT,
+  modified DATETIME,
+  md5 VARCHAR(64),
+  PRIMARY KEY (source_id, filename)
+}
+TABLE type 
+{
+  type_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  type VARCHAR(32) UNIQUE NOT NULL
+}
+TABLE subtype 
+{
+  subtype_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  subtype VARCHAR(32) UNIQUE NOT NULL
+}
+TABLE warning 
+{
+  warning_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  source_id TINYINT NOT NULL,
+  warning VARCHAR(8192)
+}
+TABLE snp_merge 
+{
+  rsMerged INTEGER NOT NULL,
+  rsCurrent INTEGER NOT NULL,
+  source_id TINYINT NOT NULL
+}
+TABLE snp_locus 
+{
+  rs INTEGER NOT NULL,
+  chr TINYINT NOT NULL,
+  pos BIGINT NOT NULL,
+  validated TINYINT NOT NULL,
+  source_id TINYINT NOT NULL
+}
+TABLE snp_entrez_role 
+{
+  rs INTEGER NOT NULL,
+  entrez_id INTEGER NOT NULL,
+  role_id INTEGER NOT NULL,
+  source_id TINYINT NOT NULL
+}
+TABLE snp_biopolymer_role 
+{
+  rs INTEGER NOT NULL,
+  biopolymer_id INTEGER NOT NULL,
+  role_id INTEGER NOT NULL,
+  source_id TINYINT NOT NULL
+}
+ TABLE biopolymer 
+{
+  biopolymer_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  type_id TINYINT NOT NULL,
+  label VARCHAR(64) NOT NULL,
+  description VARCHAR(256),
+  source_id TINYINT NOT NULL
+}
+ TABLE biopolymer_name 
+{
+  biopolymer_id INTEGER NOT NULL,
+  namespace_id INTEGER NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (biopolymer_id,namespace_id,name)
+}
+TABLE biopolymer_name_name 
+{
+  namespace_id INTEGER NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  type_id TINYINT NOT NULL,
+  new_namespace_id INTEGER NOT NULL,
+  new_name VARCHAR(256) NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (new_namespace_id,new_name,type_id,namespace_id,name)
+}
+TABLE biopolymer_region 
+{
+  biopolymer_id INTEGER NOT NULL,
+  ldprofile_id INTEGER NOT NULL,
+  chr TINYINT NOT NULL,
+  posMin BIGINT NOT NULL,
+  posMax BIGINT NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (biopolymer_id,ldprofile_id,chr,posMin,posMax)
+}
+TABLE biopolymer_zone 
+{
+  biopolymer_id INTEGER NOT NULL,
+  chr TINYINT NOT NULL,
+  zone INTEGER NOT NULL,
+  PRIMARY KEY (biopolymer_id,chr,zone)
+}
+TABLE group 
+{
+  group_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  type_id TINYINT NOT NULL,
+  subtype_id TINYINT NOT NULL,
+  label VARCHAR(64) NOT NULL,
+  description VARCHAR(256),
+  source_id TINYINT NOT NULL
+}
+TABLE group_name 
+{
+  group_id INTEGER NOT NULL,
+  namespace_id INTEGER NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (group_id,namespace_id,name)
+}
+TABLE group_group 
+{
+  group_id INTEGER NOT NULL,
+  related_group_id INTEGER NOT NULL,
+  relationship_id SMALLINT NOT NULL,
+  direction TINYINT NOT NULL,
+  contains TINYINT,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (group_id,related_group_id,relationship_id,direction)
+}
+ TABLE group_biopolymer 
+{
+  group_id INTEGER NOT NULL,
+  biopolymer_id INTEGER NOT NULL,
+  specificity TINYINT NOT NULL,
+  implication TINYINT NOT NULL,
+  quality TINYINT NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (group_id,biopolymer_id,source_id)
+}
+ TABLE group_member_name 
+{
+  group_id INTEGER NOT NULL,
+  member INTEGER NOT NULL,
+  type_id TINYINT NOT NULL,
+  namespace_id INTEGER NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (group_id,member,type_id,namespace_id,name)
+}
+ TABLE gwas 
+{
+  gwas_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  rs INTEGER,
+  chr TINYINT,
+  pos BIGINT,
+  trait VARCHAR(256) NOT NULL,
+  snps VARCHAR(256),
+  orbeta VARCHAR(8),
+  allele95ci VARCHAR(16),
+  riskAfreq VARCAHR(16),
+  pubmed_id INTEGER,
+  source_id TINYINT NOT NULL
+}
+ TABLE chain 
+{
+  chain_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  old_ucschg INTEGER NOT NULL,
+  old_chr TINYINT NOT NULL,
+  old_start BIGINT NOT NULL,
+  old_end BIGINT NOT NULL,
+  new_ucschg INTEGER NOT NULL,
+  new_chr TINYINT NOT NULL,
+  new_start BIGINT NOT NULL,
+  new_end BIGINT NOT NULL,
+  score BIGINT NOT NULL,
+  is_fwd TINYINT NOT NULL,
+  source_id TINYINT NOT NULL
+}
+ TABLE chain_data 
+{
+  chain_id INTEGER NOT NULL,
+  old_start BIGINT NOT NULL,
+  old_end BIGINT NOT NULL,
+  new_start BIGINT NOT NULL,
+  source_id TINYINT NOT NULL,
+  PRIMARY KEY (chain_id,old_start)
+}
+ INDEX warning__source ON warning (source_id}
+ INDEX snp_merge__merge_current ON snp_merge (rsMerged,rsCurrent}
+ INDEX snp_locus__rs_chr_pos ON snp_locus {rs,chr,pos}
+ INDEX snp_locus__chr_pos_rs ON snp_locus {chr,pos,rs}
+ INDEX chain__oldhg_newhg_chr ON chain {old_ucschg,new_ucschg,old_chr}
+ INDEX chain_data__end ON chain_data {chain_id,old_end}
+ INDEX snp_entrez_role__rs_entrez_role ON snp_entrez_role {rs,entrez_id,role_id}
+ INDEX gwas__rs ON gwas {rs}
+ INDEX gwas__chr_pos ON gwas {chr,pos}
+ INDEX biopolymer__type ON biopolymer {type_id}
+ INDEX biopolymer__label_type ON biopolymer {label,type_id}
+ INDEX biopolymer_name__name_namespace_biopolymer ON biopolymer_name {name,namespace_id,biopolymer_id}
+ INDEX snp_biopolymer_role__rs_biopolymer_role ON snp_biopolymer_role {rs,biopolymer_id,role_id}
+ INDEX snp_biopolymer_role__biopolymer_rs_role ON snp_biopolymer_role {biopolymer_id,rs,role_id}
+ INDEX biopolymer_region__ldprofile_chr_min ON biopolymer_region {ldprofile_id,chr,posMin}
+ INDEX biopolymer_region__ldprofile_chr_max ON biopolymer_region {ldprofile_id,chr,posMax}
+ INDEX biopolymer_zone__zone ON biopolymer_zone {chr,zone,biopolymer_id}
+ INDEX group_biopolymer__biopolymer ON group_biopolymer (biopolymer_id,group_id}
+ INDEX group__type ON group (type_id}
+ INDEX group__subtype ON group (subtype_id}
+ INDEX group__label_type ON group (label,type_id}
+ INDEX group_group__related ON group_group (related_group_id,group_id}
+ INDEX group_name__name_namespace_group ON group_name (name,namespace_id,group_id}
+ INDEX group_name__source_name ON group_name (source_id,name}
 
